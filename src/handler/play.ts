@@ -26,6 +26,7 @@ const play = {
     const res = await yts(song);
     const related = await yts.search({ videoId: res.videos[0].videoId });
     console.log(related);
+    console.log(res.videos);
 
     let defaultEmbed = new EmbedBuilder().setColor("#2f3136");
 
