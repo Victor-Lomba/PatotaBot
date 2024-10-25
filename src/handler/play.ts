@@ -57,6 +57,8 @@ const play = {
         }
       );
 
+      console.log(track);
+
       defaultEmbed.setAuthor({
         name: `Musica [${track.title}] Adicionada a fila`,
       });
