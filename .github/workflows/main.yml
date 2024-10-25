@@ -21,3 +21,14 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           source: "*"
           target: "bot"
+      - name: executing remote ssh commands
+        uses: appleboy/ssh-action@v1.1.0
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          port: ${{ secrets.PORT }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            cd bot
+            yarn
+            pm2 start yarn -- start
