@@ -8,6 +8,7 @@ import ping from "./ping";
 import play from "./play";
 import Stop from "./stop";
 import skip from "./skip";
+// import pause from "./pause";
 
 const commands: Map<
   string,
@@ -23,4 +24,6 @@ commands.set("ping", ping);
 commands.set("play", play);
 commands.set("stop", Stop);
 commands.set("skip", skip);
+// commands.set("pause", pause);
+
 export default commands;

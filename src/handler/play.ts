@@ -11,8 +11,12 @@ import {
   ChatInputCommandInteraction,
   EmbedBuilder,
   SlashCommandBuilder,
+  ButtonBuilder,
+  ButtonStyle,
   SlashCommandStringOption,
   VoiceChannel,
+  ActionRowBuilder,
+  Events,
 } from "discord.js";
 import yts from "yt-search";
 
@@ -25,14 +29,14 @@ const play = {
     const song = interaction.options.getString("musica")!;
     const res = await yts(song);
     const related = await yts.search({ videoId: res.videos[0].videoId });
-    console.log(related);
-    console.log(res.videos);
+    // console.log(related);
+    // console.log(res.videos);
 
-    let defaultEmbed = new EmbedBuilder().setColor("#2f3136");
+    let defaultEmbed = new EmbedBuilder().setColor("#070858");
 
     if (!res.videos[0]) {
       defaultEmbed.setAuthor({
-        name: `Nemhum resultado encontrado, tente novamente!`,
+        name: `Nenhum resultado encontrado, tente novamente!`,
       });
       interaction.editReply({ embeds: [defaultEmbed] });
       return;
@@ -57,14 +61,27 @@ const play = {
         }
       );
 
-      console.log(track);
+      // console.log(track);
 
       defaultEmbed.setAuthor({
-        name: `Musica [${track.title}] Adicionada a fila`,
-      });
-      await interaction.editReply({ embeds: [defaultEmbed] });
+        name: `Adicionada a fila`,
+        iconURL: `${track.thumbnail}`,
+        url: `${track.url}`
+      })
+      .setTitle(`${track.title}`)
+      .setColor(`#070858`)
+      .setDescription(`Duração: ${track.duration}`);
+
+      const pauseButton = new ButtonBuilder()
+      .setCustomId("pauseButton")
+      .setLabel("Pausar")
+      .setStyle(ButtonStyle.Secondary);
+
+      const row = new ActionRowBuilder<ButtonBuilder>().addComponents(pauseButton);
+
+      await interaction.editReply({ embeds: [defaultEmbed], components: [row] });
     } catch (error) {
-      console.log(`Play error: ${error}`);
+      // console.log(`Play error: ${error}`);
       defaultEmbed.setAuthor({
         name: `Não consigo entrar no canal de voz!`,
       });
