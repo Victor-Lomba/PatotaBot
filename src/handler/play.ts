@@ -39,11 +39,10 @@ const play = {
     }
 
     const member = interaction.guild!.members.cache.get(interaction.user.id)!;
-    const songs = await yts(song);
     try {
       const { track } = await player.play(
         member.voice.channel!,
-        songs.videos[0].url,
+        res.videos[0].url,
         {
           nodeOptions: {
             metadata: interaction,
