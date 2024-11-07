@@ -6,7 +6,6 @@ const pause = {
     .setName("pause")
     .setDescription("Pausa a música"),
   async execute(interaction: any) {
-    console.log(">>>>>>>>>>>>pause")
     await interaction.deferReply();
     const queue = useQueue(interaction.guild!);
 

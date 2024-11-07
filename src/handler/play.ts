@@ -6,7 +6,7 @@ import {
   NoSubscriberBehavior,
   StreamType,
 } from "@discordjs/voice";
-import { QueueRepeatMode, useMainPlayer } from "discord-player";
+import { QueueRepeatMode, useMainPlayer, useQueue } from "discord-player";
 import {
   ChatInputCommandInteraction,
   EmbedBuilder,
@@ -17,6 +17,9 @@ import {
   VoiceChannel,
   ActionRowBuilder,
   Events,
+  ComponentType,
+  Message,
+  BooleanCache
 } from "discord.js";
 import yts from "yt-search";
 
@@ -29,8 +32,8 @@ const play = {
     const song = interaction.options.getString("musica")!;
     const res = await yts(song);
     const related = await yts.search({ videoId: res.videos[0].videoId });
-    // console.log(related);
-    // console.log(res.videos);
+    console.log(related);
+    console.log(res.videos);
 
     let defaultEmbed = new EmbedBuilder().setColor("#070858");
 
@@ -45,7 +48,7 @@ const play = {
     const member = interaction.guild!.members.cache.get(interaction.user.id)!;
     const songs = await yts(song);
     try {
-      const { track } = await player.play(
+      const { track, queue } = await player.play(
         member.voice.channel!,
         songs.videos[0].url,
         {
@@ -61,7 +64,7 @@ const play = {
         }
       );
 
-      // console.log(track);
+      console.log(track);
 
       defaultEmbed.setAuthor({
         name: `Adicionada a fila`,
@@ -77,11 +80,54 @@ const play = {
       .setLabel("Pausar")
       .setStyle(ButtonStyle.Secondary);
 
-      const row = new ActionRowBuilder<ButtonBuilder>().addComponents(pauseButton);
+      const resumeButton = new ButtonBuilder()
+      .setCustomId("resume")
+      .setLabel("Resumir")
+      .setStyle(ButtonStyle.Primary);
+
+      const repeatMode = new ButtonBuilder()
+      .setCustomId("repeatMode")
+      .setLabel(`Autoplay`)
+      .setStyle(ButtonStyle.Success);
+
+      const row = new ActionRowBuilder<ButtonBuilder>()
+      .addComponents(pauseButton, repeatMode);
 
       await interaction.editReply({ embeds: [defaultEmbed], components: [row] });
+
+      const collector = (interaction.channel as any)?.createMessageComponentCollector({ componentType: ComponentType.Button, time: 3_600_000 });
+      collector.on('collect', async (i:any) => {
+        await i.deferUpdate()
+        if (i.customId === "pauseButton") {
+          queue?.node.pause();
+          defaultEmbed.setAuthor({
+            name: `Música pausada`,
+            iconURL: `${track.thumbnail}`,
+            url: `${track.url}`
+          })
+          const newRow = new ActionRowBuilder<ButtonBuilder>().addComponents( resumeButton, repeatMode);
+          await interaction.editReply({ embeds: [defaultEmbed], components: [newRow] });
+        } else if (i.customId === "resume") {
+          queue?.node.resume();
+          const newRow = new ActionRowBuilder<ButtonBuilder>().addComponents(pauseButton, repeatMode);
+          defaultEmbed.setAuthor({
+            name: `Música Resumida`,
+            iconURL: `${track.thumbnail}`,
+            url: `${track.url}`
+          })
+          await interaction.editReply({ embeds: [defaultEmbed], components: [newRow] });
+        } else if (i.customId === "repeatMode") {
+          queue.setRepeatMode(queue.repeatMode === QueueRepeatMode.AUTOPLAY ? QueueRepeatMode.OFF : QueueRepeatMode.AUTOPLAY);
+          defaultEmbed.setAuthor({
+            name: `AutoPlay ${queue.repeatMode === QueueRepeatMode.AUTOPLAY ? "Ligado" : "Desligado"}`,
+            iconURL: `${track.thumbnail}`,
+            url: `${track.url}`
+          })
+          await interaction.editReply({ embeds: [defaultEmbed], components: [row] });
+        }
+      })
     } catch (error) {
-      // console.log(`Play error: ${error}`);
+      console.log(`Play error: ${error}`);
       defaultEmbed.setAuthor({
         name: `Não consigo entrar no canal de voz!`,
       });
@@ -100,5 +146,11 @@ const play = {
         .setRequired(true)
     ),
 };
+
+const getComponents = () => {
+
+
+  return ;
+}
 
 export default play;

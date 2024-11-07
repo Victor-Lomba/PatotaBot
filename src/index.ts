@@ -1,6 +1,4 @@
 import {
-  ButtonComponent,
-  ButtonInteraction,
   Client,
   Collection,
   Events,
@@ -60,12 +58,14 @@ const commandsJson = Array.from(commands.values()).map((command) =>
 );
 
 client.on(Events.InteractionCreate, (interaction) => {
-  console.log( interaction)
-  if(interaction.isButton()) {
-    if(interaction.customId === 'pauseButton') {
-      commands.get('pause')
-    }
-  }
+  // if(interaction.isButton()) {
+  //   if(interaction.customId === 'pauseButton') {
+  //     const queue = useQueue(interaction.guild!);
+  //     queue?.node.pause();
+  //     await interaction.editReply("Musica parada!");
+  //   }
+  //   return
+  // }
   if (!interaction.isChatInputCommand()) return;
   if (!interaction.guild) return;
 
@@ -77,11 +77,11 @@ client.on("guildAvailable", (guild) => {
   client.guildData.set(guild.id, {
     isPlaying: false,
   });
-  // console.log("Guild: ", guild.name, " : ", guild.id);
+  console.log("Guild: ", guild.name, " : ", guild.id);
 });
 
 client.once("ready", () => {
-  // console.log(`Online em: ${client.user?.tag}!`);
+  console.log(`Online em: ${client.user?.tag}!`);
 });
 
 client.on(Events.InteractionCreate, (interaction) => {
@@ -90,9 +90,9 @@ client.on(Events.InteractionCreate, (interaction) => {
 
 (async () => {
   try {
-    // console.log(
-    //   `Started refreshing ${commandsJson.length} application (/) commands.`
-    // );
+    console.log(
+      `Started refreshing ${commandsJson.length} application (/) commands.`
+    );
 
     // The put method is used to fully refresh all commands in the guild with the current set
     const data: any[] = (await rest.put(
@@ -103,9 +103,9 @@ client.on(Events.InteractionCreate, (interaction) => {
       { body: commandsJson }
     )) as any[];
 
-    // console.log(
-    //   `Successfully reloaded ${data.length} application (/) commands.`
-    // );
+    console.log(
+      `Successfully reloaded ${data.length} application (/) commands.`
+    );
   } catch (error) {
     // And of course, make sure you catch and log any errors!
     console.error(error);
